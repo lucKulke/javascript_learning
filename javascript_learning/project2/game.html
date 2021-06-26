@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceWar</title>
+    <link rel="stylesheet" href="./style.css">
+
+    <script>
+        let playerPoints = 0;
+        let KEY_SPACE = false; //32
+        let KEY_DOWN = false; //40
+        let KEY_UP = false; //38
+        let canvas;
+        let ctx;
+        let backgroundImg = new Image();
+        let rocket = {
+            x: 100,
+            y: 200,
+            width: 90,
+            height: 50,
+            src: './img/Frame 1.png'
+        }
+        
+        
+        
+        let ufos = []
+
+        let shots = []
+
+
+
+        // Keylistener 
+         // pressed
+         document.onkeydown = function(e) {
+            if (e.keyCode == 32) { // Leertaste gedrückt
+                KEY_SPACE = true;
+            }
+
+            if (e.keyCode == 38) { // Nach oben gedrückt
+                KEY_UP = true;
+            }
+
+            if (e.keyCode == 40) { // Nach unten gedrückt
+                KEY_DOWN = true;
+            }
+        }
+
+         // released
+
+         document.onkeyup = function(e) {
+            if (e.keyCode == 32) { // Leertaste losgelassen
+                KEY_SPACE = false;
+            }
+
+
+            if (e.keyCode == 38) { // Nach oben losgelassen
+                KEY_UP = false;
+            }
+
+            if (e.keyCode == 40) { // Nach unten losgelassen
+                KEY_DOWN = false;
+            }
+        }
+
+        function startGame() {
+            canvas = document.getElementById("canvas");
+            ctx = canvas.getContext("2d");
+            
+            loadimg();
+            
+            setInterval(update, 1000/25);
+            setInterval(createUfos, 5000);
+            setInterval(checkForCollision, 1000 / 25)
+            setInterval(createShots, 1000 /25)
+            
+            draw();
+        }
+
+
+        function createShots(){
+            if(KEY_SPACE == true){
+
+            let shot = {
+                x: rocket.x + rocket.width,
+                y: rocket.y + (rocket.height / 3),
+                width: 20,
+                height: 20,
+                src: 'img/Frame 3.png',
+                img: new Image()
+            };
+           
+            shot.img.src = shot.src;
+            shots.push(shot);
+        }
+        }
+
+
+        
+
+        function checkForCollision(){
+            ufos.forEach(function(ufo){
+               if(rocket.x + rocket.width > ufo.x
+               && rocket.y + rocket.height > ufo.y
+               && rocket.x < ufo.x
+               && rocket.y < ufo.y + ufo.height){
+                   rocket.img.src = "./img/Frame 2.png"
+                   ufos = ufos.filter(u => u != ufo);
+               } 
+            });
+
+            shots.forEach(function(shot){
+                if(ufos[ufos.length - 1].x + ufos[ufos.length - 1].width > shot.x
+               && ufos[ufos.length - 1].y + ufos[ufos.length - 1].height > shot.y
+               && ufos[ufos.length - 1].x < shot.x
+               && ufos[ufos.length - 1].y < shot.y + shot.height){
+                   ufos[ufos.length - 1].img.src = "./img/Frame 5.png"
+                   shots = shots.filter(u => u != shot);
+               } 
+            });
+        }
+
+
+
+        function createUfos() {
+            let ufo = {
+                x: 800,
+                y: Math.random() * 700, // Wir platzieren unsere UFOs an einem zufälligen Ort
+                width: 70,
+                height: 70,
+                src: 'img/Frame 4.png',
+                img: new Image()
+            };
+           
+            ufo.img.src = ufo.src;
+            ufos.push(ufo)
+
+        }
+
+
+        function update(){
+            if(KEY_UP){
+                rocket.y -= 5; 
+            }
+            if(KEY_DOWN){
+                rocket.y += 5;
+            }
+            
+            ufos.forEach(function(ufo){
+                ufo.x -= 5;
+            })
+
+            shots.forEach(function(shot){
+                shot.x += 5;
+            })
+        }
+
+
+        function draw() {
+            ctx.drawImage(backgroundImg, 0, 0);
+            ctx.drawImage(rocket.img, rocket.x, rocket.y, rocket.width, rocket.height);
+            
+            ufos.forEach(function(ufo) {
+                ctx.drawImage(ufo.img, ufo.x, ufo.y, ufo.width, ufo.height);
+              });
+            
+            shots.forEach(function(shot){
+                ctx.drawImage(shot.img, shot.x, shot.y, shot.width, shot.height)
+            });
+            
+
+            requestAnimationFrame(draw);
+        }
+
+
+
+        function loadimg() {
+            backgroundImg.src ="img/space2.png";
+            
+            rocket.img = new Image();
+            rocket.img.src = rocket.src;
+        }
+
+    </script>
+
+</head>
+<body onload="startGame()">
+
+    <canvas width="1500" height="700" id="canvas"></canvas>
+    <h1>Player-Points = <p id="points"></p></h1>
+</body>
+</html>
